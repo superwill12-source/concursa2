@@ -44,22 +44,24 @@ jobs:
           ARQ_APP=android/app/build.gradle.kts
           ARQ_RAIZ=android/build.gradle.kts
           sed -i 's/compileSdk = flutter\.compileSdkVersion/compileSdk = 36/' "$ARQ_APP"
-          { cat <<'KTS'
-subprojects {
-    afterEvaluate {
-        val ext = extensions.findByName("android")
-        if (ext != null) {
-            try {
-                ext.javaClass.getMethod("setCompileSdk", Integer::class.java).invoke(ext, 36)
-            } catch (e: NoSuchMethodException) {
-                ext.javaClass.getMethod("setCompileSdkVersion", Int::class.javaPrimitiveType).invoke(ext, 36)
-            }
-        }
-    }
-}
+          {
+          cat <<'KTS'
+          subprojects {
+              afterEvaluate {
+                  val ext = extensions.findByName("android")
+                  if (ext != null) {
+                      try {
+                          ext.javaClass.getMethod("setCompileSdk", Integer::class.java).invoke(ext, 36)
+                      } catch (e: NoSuchMethodException) {
+                          ext.javaClass.getMethod("setCompileSdkVersion", Int::class.javaPrimitiveType).invoke(ext, 36)
+                      }
+                  }
+              }
+          }
 
-KTS
-            cat "$ARQ_RAIZ"; } > /tmp/raiz.kts && mv /tmp/raiz.kts "$ARQ_RAIZ"
+          KTS
+          cat "$ARQ_RAIZ"
+          } > /tmp/raiz.kts && mv /tmp/raiz.kts "$ARQ_RAIZ"
           grep -n "compileSdk" "$ARQ_APP" || true
 
       - name: Permitir internet no app
